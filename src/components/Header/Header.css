@@ -1,0 +1,32 @@
+.custom-bg {
+  background: #8ec5fc;
+}
+.offcanvas {
+  transition: transform 0.5s ease-in-out;
+}
+.carousel-inner img {
+  width: 100%;
+  height: 600px;
+}
+
+@media (max-width: 992px) {
+  .carousel-inner img {
+    height: auto;
+    object-fit: cover;
+  }
+}
+@media (max-width: 576px) {
+  .navbar-toggler {
+    font-size: 1rem;
+  }
+  .navbar-nav .nav-link {
+    font-size: 10px; /* Điều chỉnh font-size của các ô menu */
+  }
+
+  .form-control {
+    font-size: 10px; /* Điều chỉnh font-size của ô input */
+  }
+}
+.dropdown:hover .dropdown-menu {
+  display: block;
+}

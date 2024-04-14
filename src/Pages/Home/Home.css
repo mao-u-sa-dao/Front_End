@@ -1,0 +1,21 @@
+.aspect-ratio-banner {
+  aspect-ratio: 1440 / 600;
+}
+.aspect-ratio-hot {
+  aspect-ratio: 356 / 180;
+}
+.aspect-ratio-bannerQc {
+  aspect-ratio: 1440 / 315;
+}
+.aspect-ratio-kiemhiep {
+  aspect-ratio: 244 / 160;
+}
+
+.title {
+  font-size: 1.5rem;
+}
+@media (max-width: 576px) {
+  .title {
+    font-size: 0.75rem;
+  }
+}

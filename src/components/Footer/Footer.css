@@ -1,0 +1,58 @@
+.footer {
+  background: #4c4b4b;
+}
+.contact img {
+  width: 50px;
+  height: 50px;
+}
+.footer h2 {
+  font-size: 1.5rem;
+}
+@media (max-width: 992px) {
+  .contact img {
+    width: 30px;
+    height: 30px;
+  }
+  .footer h2 {
+    font-size: 0.5rem;
+  }
+  .footer p {
+    font-size: 0.4rem;
+  }
+}
+@media (max-width: 768px) {
+  .contact img {
+    width: 20px;
+    height: 20px;
+  }
+  .logo img {
+    width: 60px;
+    height: 40px;
+  }
+}
+@media (max-width: 576px) {
+  .navbar-toggler {
+    font-size: 1rem;
+  }
+  .navbar-nav .nav-link {
+    font-size: 10px; /* Điều chỉnh font-size của các ô menu */
+  }
+
+  .form-control {
+    font-size: 10px; /* Điều chỉnh font-size của ô input */
+  }
+  .footer h2 {
+    font-size: 0.4rem;
+  }
+  .footer p {
+    font-size: 0.3rem;
+  }
+  .contact img {
+    width: 10px;
+    height: 10px;
+  }
+  .logo img {
+    width: 50px;
+    height: 30px;
+  }
+}
