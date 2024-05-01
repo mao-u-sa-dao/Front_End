@@ -10,6 +10,7 @@ import { getMovieByIdApi } from "../../api/movies";
 export default function About() {
   const [Movie, setMovie] = useState([]);
   let { id } = useParams();
+  const [User, setUser] = useState([]);
   useEffect(() => {
     fetchData();
   }, []);
@@ -20,6 +21,7 @@ export default function About() {
       console.log(error);
     }
   };
+
   return (
     <Fragment>
       <Header />

@@ -1,31 +1,43 @@
 import React from "react";
-import axios from "axios";
 import { Fragment } from "react";
-import { getMoviesListApi, getMoviesListByCategoryApi } from "../../api/movies";
+import {
+  getMoviesListApi,
+  getMoviesListByCategoryApi,
+  getMoviesListApiById,
+} from "../../api/movies";
+
+import { jwtDecode } from "jwt-decode";
 import { Link } from "react-router-dom";
 
 import Header from "../../components/Header/Header";
 import Footer from "../../components/Footer/Footer";
 import { useState, useEffect } from "react";
-import Title from "../../assets/icon/title-banner.svg";
 import Banner1 from "../../assets/img/Banner.jpg";
 import Banner2 from "../../assets/img/Banner-2.jpg";
 import Banner3 from "../../assets/img/Banner-3.jpg";
-import Hot1 from "../../assets/img/avatar-list-movie/hot1.jpg";
-import Hot2 from "../../assets/img/avatar-list-movie/hot2.jpg";
-import Hot3 from "../../assets/img/avatar-list-movie/hot3.jpg";
 import BannerQc from "../../assets/img/banner-quangcao/Banner-quangcao.jpg";
 
 import "./Home.css";
 export default function Home() {
   const url = process.env.REACT_APP_URL_API;
   const urlImageList = url + "/img/list-movies-avatar/";
-  // call api get list movies
+
+  const [user, setUser] = useState(null);
   const [listMovies, setListMovies] = useState([]);
   const [listMoviesByKiemHiep, setListMoviesByKiemHiep] = useState([]);
+  const [listMovieModal, setlistMovieModal] = useState([]);
+
   useEffect(() => {
     fetchData();
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setUser(decodedToken);
+      console.log(user);
+    }
+    console.log(token);
   }, []);
+
   const fetchData = async () => {
     try {
       setListMovies(await getMoviesListApi());
@@ -34,7 +46,10 @@ export default function Home() {
       console.log("Lỗi :" + error);
     }
   };
-  console.log(listMovies);
+  const ListMovieModal = async (idListMovie) => {
+    setlistMovieModal(await getMoviesListApiById(idListMovie));
+  };
+
   return (
     <Fragment>
       <Header />
@@ -107,13 +122,44 @@ export default function Home() {
           <h2 className="title mt-5">Phim Hot</h2>
           <div className=" row d-flex my-5">
             {listMovies.slice(0, 3).map((listMovie) => (
-              <div className="col-4">
-                <Link to={`/movie/${listMovie.movieListId}`}>
-                  <img
-                    className=" img-fluid aspect-ratio-hot"
-                    src={urlImageList + listMovie.avatarMovie}
-                  />
-                </Link>
+              <div className="col-4 content">
+                <img
+                  className="imghot img-fluid aspect-ratio-hot"
+                  src={urlImageList + listMovie.avatarMovie}
+                />
+
+                <div className="overlay d-flex flex-column">
+                  <p className="">Tên Phim: {listMovie.movieListName}</p>
+                  {listMovie.price != 0 && (
+                    <Fragment>
+                      <p className="price">
+                        Giá:
+                        <span className="text-decoration-underline">{`${listMovie.price.toLocaleString(
+                          "en-US"
+                        )}đ`}</span>
+                      </p>
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        data-bs-toggle="modal"
+                        data-bs-target="#myModal"
+                        onClick={() => ListMovieModal(listMovie.movieListId)}
+                      >
+                        Mua ngay
+                      </button>
+                    </Fragment>
+                  )}
+                  {listMovie.price == 0 && (
+                    <Fragment>
+                      <p className="price">Miễn Phí.</p>
+                      <Link to={`/movie/${listMovie.movieListId}`}>
+                        <a className="btn btn-outline-secondary btn-sm">
+                          Xem phim
+                        </a>
+                      </Link>
+                    </Fragment>
+                  )}
+                </div>
               </div>
             ))}
           </div>
@@ -128,7 +174,7 @@ export default function Home() {
           <h2 className="title  mt-5 ">Phim Kiếm Hiệp</h2>
           <div className="row d-flex my-5">
             {listMovies.slice(0, 4).map((listMovie) => (
-              <div className="col">
+              <div className="col ">
                 <Link to={`/movie/${listMovie.movieListId}`}>
                   <img
                     className=" img-fluid aspect-ratio-kiemhiep"
@@ -141,6 +187,66 @@ export default function Home() {
         </div>
       </div>
       <Footer />
+      {/* Modal */}
+      <div className="modal fade" id="myModal">
+        <div className="modal-dialog">
+          <div className="modal-content">
+            {/* <!-- Modal Header --> */}
+            <div className="modal-header">
+              <h4 className="modal-title">Mua sản phẩm</h4>
+              <button
+                type="button"
+                className="btn-close"
+                data-bs-dismiss="modal"
+              ></button>
+            </div>
+
+            {/* <!-- Modal body --> */}
+            <div className="modal-body">
+              {listMovieModal !== null && user != null && (
+                <>
+                  <p>
+                    <span>Tên bộ phim: </span>
+                    {listMovieModal.movieListName}
+                  </p>
+                  <p>
+                    <span>Giá: </span>
+                    {listMovieModal.price &&
+                      `${listMovieModal.price.toLocaleString("en-US")}đ`}
+                  </p>
+                  <p>
+                    <span>
+                      Tiền trong tài khoản:
+                      {`${Math.floor(user.UserMonney).toLocaleString(
+                        "en-US"
+                      )}đ`}
+                    </span>
+                  </p>
+                  <p>
+                    <span>
+                      Số tiền còn lại sau khi thanh toán:
+                      {`${(
+                        user.UserMonney - (listMovieModal.price || 0)
+                      ).toLocaleString("en-US")}đ`}
+                    </span>
+                  </p>
+                </>
+              )}
+            </div>
+
+            {/* <!-- Modal footer --> */}
+            <div className="modal-footer">
+              <button
+                type="button"
+                className="btn btn-danger"
+                data-bs-dismiss="modal"
+              >
+                Close
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
     </Fragment>
   );
 }

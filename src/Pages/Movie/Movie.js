@@ -9,8 +9,8 @@ import {
   getMovieByPartApi,
   getMoviesListApiById,
   getMovieByIdApi,
-  getCommentByIdApi,
 } from "../../api/movies";
+import { getCommentByIdApi, postCommentApi } from "../../api/comment";
 import "./Movie.css";
 
 export default function Movie() {
@@ -18,41 +18,70 @@ export default function Movie() {
   const urlImageList = url + "/img/list-movies-avatar/";
 
   const [PartMovieSearchParams, setPartMovieSearchParams] = useSearchParams();
-  const idMovie = PartMovieSearchParams.get("movie");
+  const idMovie = PartMovieSearchParams.get("MovieId");
   const [Movie, setMovie] = useState([]);
   const [MovieListById, setMovieListById] = useState("");
   const [MovieByPart, setMovieByPart] = useState("");
+  const [InputComment, setInputComment] = useState("");
   const [Comment, setComment] = useState([]);
+  const [movieId, setmovieId] = useState("");
+  const [loading, setLoading] = useState(true);
   let { id } = useParams();
   useEffect(() => {
     fetchData();
   }, [idMovie]);
+
+  const movieId1 = Movie.length > 0 ? Movie[0].movieId : null;
+  const [buttonComment, setButtonComment] = useState(0);
+  const [commentPosted, setCommentPosted] = useState(false);
+
   useEffect(() => {
-    fetchData1();
-  }, []);
+    if (movieId1 !== null) {
+      fetchDataComment();
+    }
+  }, [idMovie, movieId1, buttonComment, commentPosted]);
+
+  const commentData = {
+    commentContent: InputComment,
+    movieId: movieId,
+    accountId: 1,
+    commentCreateTime: "2024-04-13T01:00:00",
+    account: null,
+    movie: null,
+  };
+
+  const postComment = async () => {
+    await postCommentApi(commentData);
+    setButtonComment(buttonComment + 1); // Tăng giá trị của buttonComment để gọi lại useEffect
+    setCommentPosted(true); // Đánh dấu là đã post comment
+  };
 
   const fetchData = async () => {
     try {
       setMovie(await getMovieByIdApi(id));
       setMovieListById(await getMoviesListApiById(id));
       setMovieByPart(await getMovieByPartApi(id, idMovie));
-      if (idMovie !== null) {
-        const comments = await getCommentByIdApi(idMovie);
-        setComment(comments["$values"]);
-      }
     } catch (error) {
       console.log(error);
     }
   };
-  const fetchData1 = async () => {
-    if (idMovie === null) {
-      const comments = await getCommentByIdApi(1);
-      setComment(comments["$values"]);
+  const fetchDataComment = async () => {
+    try {
+      if (idMovie !== null) {
+        setmovieId(idMovie);
+        setComment(await getCommentByIdApi(idMovie));
+      } else {
+        setmovieId(movieId1);
+        setComment(await getCommentByIdApi(movieId1));
+      }
+      setLoading(false);
+    } catch (error) {
+      console.log(error);
     }
   };
 
-  const partClick = (idMovie) => {
-    setPartMovieSearchParams({ movie: idMovie });
+  const partClick = (movieId) => {
+    setPartMovieSearchParams({ MovieId: movieId });
   };
 
   return (
@@ -93,10 +122,12 @@ export default function Movie() {
             )}
             <div className=" list-video ms-3">
               <p className="desc">Các phim tương tự</p>
-              <img
-                className="img-fluid aspect-ratio-videolist"
-                src={urlImageList + MovieListById.avatarMovie}
-              />
+              <Link to={`/movie/${MovieListById.movieListId}`}>
+                <img
+                  className="img-fluid aspect-ratio-videolist"
+                  src={urlImageList + MovieListById.avatarMovie}
+                />
+              </Link>
               <img
                 className="img-fluid aspect-ratio-videolist"
                 src={urlImageList + MovieListById.avatarMovie}
@@ -122,13 +153,27 @@ export default function Movie() {
             ))}
           </div>
           {/* Comment */}
-          <div className="Comment mt-5">
-            {Comment.map((item, index) => (
-              <div key={index}>
-                <h3>{item.Account?.AccountName}</h3>
-                <p>{item.CommentContent}</p>
-              </div>
-            ))}
+          <div className="Comment mt-5 pb-5">
+            <p>Comment: </p>
+            <div className="input-group">
+              <input
+                type="text"
+                value={InputComment}
+                onChange={(e) => setInputComment(e.target.value)}
+              />
+              <button onClick={() => postComment()}>send</button>
+            </div>
+
+            {loading ? (
+              <div>Loading...</div>
+            ) : (
+              Comment.map((item, index) => (
+                <div key={index}>
+                  <h3>{item.account?.accountName}</h3>
+                  <p>{item.commentContent}</p>
+                </div>
+              ))
+            )}
           </div>
         </div>
       </div>

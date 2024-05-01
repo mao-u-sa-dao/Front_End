@@ -1,11 +1,28 @@
-import Logo from "../../assets/icon/logo.svg";
+import { Link } from "react-router-dom";
+import { jwtDecode } from "jwt-decode";
+import { useNavigate } from "react-router-dom";
 import "./Header.css";
-import { Fragment } from "react";
+import { Fragment, useEffect, useState } from "react";
 function Header() {
+  const navigate = useNavigate();
+  const [user, setUser] = useState(null);
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token) {
+      const decodedToken = jwtDecode(token);
+      setUser(decodedToken);
+      console.log(user);
+    }
+  }, []);
+
+  const Logout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
+  };
   return (
     <Fragment>
-      <header className="header fixed slide-in">
-        <nav className="navbar py-3 navbar-expand custom-bg">
+      <header className="header fixed slide-in sticky-top">
+        <nav className="navbar py-3 navbar-expand custom-bg ">
           <div className="container-fluid">
             <div className="container">
               <div
@@ -98,9 +115,20 @@ function Header() {
                       </a>
                     </span>
                   </div>
-                  <button className="btn btn-secondary d-none d-sm-block">
-                    Login
-                  </button>
+                  {user ? (
+                    <button
+                      onClick={() => Logout()}
+                      className="btn btn-secondary d-none d-sm-block"
+                    >
+                      Logout
+                    </button>
+                  ) : (
+                    <Link className="text-decoration-none" to={`/Login`}>
+                      <button className="btn btn-secondary d-none d-sm-block">
+                        Login
+                      </button>
+                    </Link>
+                  )}
                 </form>
               </div>
             </div>
@@ -118,12 +146,48 @@ function Header() {
           ></button>
         </div>
         <div className="offcanvas-body">
-          <p>Account</p>
-          <p>Account Info</p>
-          <p>Logout</p>
-          <button className="btn btn-secondary d-block d-sm-none" type="button">
-            Login
-          </button>
+          {user ? (
+            <div>
+              {user.unique_name} Tổng tiền:{" "}
+              {`${Math.floor(user.UserMonney).toLocaleString("en-US")}đ`}
+              <div className="dropdown">
+                <span className="fa fa-user dropdown-toggle"></span>
+                <ul className="dropdown-menu">
+                  <li>
+                    <a
+                      onClick={() => Logout()}
+                      href=""
+                      className="dropdown-item"
+                    >
+                      Logout
+                    </a>
+                  </li>
+                  <li>
+                    <a className="dropdown-item" href="#">
+                      Thông tin user
+                    </a>
+                  </li>
+                  <li>
+                    <a className="dropdown-item" href="#">
+                      Kho phim sở hữu
+                    </a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <Fragment>
+              <p>Account</p>
+              <Link className="text-decoration-none" to={`/Login`}>
+                <button
+                  className="btn btn-secondary d-block d-sm-none"
+                  type="button"
+                >
+                  Login
+                </button>
+              </Link>
+            </Fragment>
+          )}
         </div>
       </div>
     </Fragment>

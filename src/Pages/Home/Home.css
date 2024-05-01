@@ -18,4 +18,46 @@
   .title {
     font-size: 0.75rem;
   }
+  .phimhot .overlay {
+    font-size: 0.35rem;
+    gap: -30px;
+  }
+  .phimhot .overlay .btn {
+    font-size: 0.3rem;
+  }
+  .phimhot .overlay p {
+    margin-bottom: 5px;
+  }
+}
+
+/* ============ */
+.phimhot .content {
+  position: relative;
+}
+.phimhot .content .imghot {
+  opacity: 1;
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: 0.5s ease;
+  backface-visibility: hidden;
+}
+.phimhot .content:hover .imghot {
+  opacity: 0.3;
+}
+.phimhot .content:hover .overlay {
+  opacity: 1;
+}
+.phimhot .overlay {
+  transition: 0.5s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  -ms-transform: translate(-50%, -50%);
+  text-align: center;
+}
+.phimhot .overlay .price {
+  color: red;
 }
