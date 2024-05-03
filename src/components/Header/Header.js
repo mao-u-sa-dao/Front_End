@@ -2,18 +2,23 @@ import { Link } from "react-router-dom";
 import { jwtDecode } from "jwt-decode";
 import { useNavigate } from "react-router-dom";
 import "./Header.css";
+import { UserInfor } from "../../api/auth";
 import { Fragment, useEffect, useState } from "react";
 function Header() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
+  const [inforUser, setInforUser] = useState(null);
   useEffect(() => {
+    fetchData();
+  }, []);
+  const fetchData = async () => {
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken = jwtDecode(token);
       setUser(decodedToken);
-      console.log(user);
+      setInforUser(await UserInfor(decodedToken.ID));
     }
-  }, []);
+  };
 
   const Logout = () => {
     localStorage.removeItem("token");
@@ -146,10 +151,10 @@ function Header() {
           ></button>
         </div>
         <div className="offcanvas-body">
-          {user ? (
+          {user !== null && inforUser !== null && (
             <div>
               {user.unique_name} Tổng tiền:{" "}
-              {`${Math.floor(user.UserMonney).toLocaleString("en-US")}đ`}
+              <p>{`${inforUser.accountMoney.toLocaleString("en-US")}đ`}</p>
               <div className="dropdown">
                 <span className="fa fa-user dropdown-toggle"></span>
                 <ul className="dropdown-menu">
@@ -175,7 +180,8 @@ function Header() {
                 </ul>
               </div>
             </div>
-          ) : (
+          )}{" "}
+          {user === null && inforUser === null && (
             <Fragment>
               <p>Account</p>
               <Link className="text-decoration-none" to={`/Login`}>

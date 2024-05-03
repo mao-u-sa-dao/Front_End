@@ -5,6 +5,7 @@ import {
   getMoviesListByCategoryApi,
   getMoviesListApiById,
 } from "../../api/movies";
+import { UserInfor, putInforUserApi } from "../../api/auth";
 
 import { jwtDecode } from "jwt-decode";
 import { Link } from "react-router-dom";
@@ -23,33 +24,49 @@ export default function Home() {
   const urlImageList = url + "/img/list-movies-avatar/";
 
   const [user, setUser] = useState(null);
+  const [inforUser, setInforUser] = useState(null);
   const [listMovies, setListMovies] = useState([]);
   const [listMoviesByKiemHiep, setListMoviesByKiemHiep] = useState([]);
   const [listMovieModal, setlistMovieModal] = useState([]);
 
   useEffect(() => {
     fetchData();
-    const token = localStorage.getItem("token");
-    if (token) {
-      const decodedToken = jwtDecode(token);
-      setUser(decodedToken);
-      console.log(user);
-    }
-    console.log(token);
+    console.log(inforUser);
   }, []);
 
   const fetchData = async () => {
     try {
+      const token = localStorage.getItem("token");
+      if (token) {
+        // sử dụng jwtdecode để mã hóa token thành data
+        const decodedToken = jwtDecode(token);
+        // lưu data của user
+        setUser(decodedToken);
+        // và get infor của user để lấy số tiền
+        setInforUser(await UserInfor(decodedToken.ID));
+      }
+
       setListMovies(await getMoviesListApi());
       setListMoviesByKiemHiep(await getMoviesListByCategoryApi(2));
     } catch (error) {
       console.log("Lỗi :" + error);
     }
   };
+  // hàm dùng để lấy thông tin của listmovie hiện tại khi click mua ngay và hiển thị modal
   const ListMovieModal = async (idListMovie) => {
     setlistMovieModal(await getMoviesListApiById(idListMovie));
   };
-
+  // hàm cập nhật số tiền sau khi click mua
+  const PutInforUser = async (idUser, priceMovieList) => {
+    let total = inforUser.accountMoney - priceMovieList;
+    let data = {
+      id: inforUser.id,
+      accountId: inforUser.accountId,
+      accountMoney: total,
+    };
+    await putInforUserApi(inforUser.accountId, data);
+    window.location.reload();
+  };
   return (
     <Fragment>
       <Header />
@@ -203,7 +220,7 @@ export default function Home() {
 
             {/* <!-- Modal body --> */}
             <div className="modal-body">
-              {listMovieModal !== null && user != null && (
+              {listMovieModal !== null && inforUser !== null && (
                 <>
                   <p>
                     <span>Tên bộ phim: </span>
@@ -217,19 +234,23 @@ export default function Home() {
                   <p>
                     <span>
                       Tiền trong tài khoản:
-                      {`${Math.floor(user.UserMonney).toLocaleString(
-                        "en-US"
-                      )}đ`}
+                      {`${inforUser.accountMoney.toLocaleString("en-US")}đ`}
                     </span>
                   </p>
                   <p>
                     <span>
                       Số tiền còn lại sau khi thanh toán:
                       {`${(
-                        user.UserMonney - (listMovieModal.price || 0)
+                        inforUser.accountMoney - (listMovieModal.price || 0)
                       ).toLocaleString("en-US")}đ`}
                     </span>
                   </p>
+                  <a
+                    className="btn btn-primary"
+                    onClick={() => PutInforUser(user.ID, listMovieModal.price)}
+                  >
+                    Mua ngay
+                  </a>
                 </>
               )}
             </div>
