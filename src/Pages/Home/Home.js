@@ -1,11 +1,17 @@
 import React from "react";
+import Slider from "react-slick";
+import "slick-carousel/slick/slick.css";
+import "slick-carousel/slick/slick-theme.css";
+
 import { Fragment } from "react";
 import {
   getMoviesListApi,
   getMoviesListByCategoryApi,
   getMoviesListApiById,
 } from "../../api/movies";
+import { GetMovieOwnedByIdAccount } from "../../api/movieowned";
 import { UserInfor, putInforUserApi } from "../../api/auth";
+import { AddMovieOwned } from "../../api/movieowned";
 
 import { jwtDecode } from "jwt-decode";
 import { Link } from "react-router-dom";
@@ -17,12 +23,18 @@ import Banner1 from "../../assets/img/Banner.jpg";
 import Banner2 from "../../assets/img/Banner-2.jpg";
 import Banner3 from "../../assets/img/Banner-3.jpg";
 import BannerQc from "../../assets/img/banner-quangcao/Banner-quangcao.jpg";
+import bgr from "../../assets/img/1336451.jpg";
 
 import "./Home.css";
 export default function Home() {
   const url = process.env.REACT_APP_URL_API;
   const urlImageList = url + "/img/list-movies-avatar/";
 
+  const [isBuy, setIsBuy] = useState(() => {
+    const storedIsBuy = localStorage.getItem("isBuy");
+    return storedIsBuy ? JSON.parse(storedIsBuy) : {};
+  });
+  const [getMovieOwned, setGetMovieOwned] = useState([]);
   const [user, setUser] = useState(null);
   const [inforUser, setInforUser] = useState(null);
   const [listMovies, setListMovies] = useState([]);
@@ -44,6 +56,7 @@ export default function Home() {
         setUser(decodedToken);
         // và get infor của user để lấy số tiền
         setInforUser(await UserInfor(decodedToken.ID));
+        setGetMovieOwned(await GetMovieOwnedByIdAccount(decodedToken.ID));
       }
 
       setListMovies(await getMoviesListApi());
@@ -56,19 +69,57 @@ export default function Home() {
   const ListMovieModal = async (idListMovie) => {
     setlistMovieModal(await getMoviesListApiById(idListMovie));
   };
+
   // hàm cập nhật số tiền sau khi click mua
-  const PutInforUser = async (idUser, priceMovieList) => {
-    let total = inforUser.accountMoney - priceMovieList;
-    let data = {
-      id: inforUser.id,
-      accountId: inforUser.accountId,
-      accountMoney: total,
-    };
-    await putInforUserApi(inforUser.accountId, data);
-    window.location.reload();
+  const PutInforUser = async (movieId, idInforUser, priceMovieList) => {
+    try {
+      const confirmBuy = window.confirm(
+        "Bạn có chắc chắn muốn mua bộ phim này?"
+      );
+      if (confirmBuy) {
+        let total = inforUser.accountMoney - priceMovieList;
+        let dataInforUser = {
+          id: idInforUser,
+          accountId: user.ID,
+          accountMoney: total,
+        };
+        let dataMovieOwned = {
+          movieListId: movieId,
+          accountId: user.ID,
+          price: priceMovieList,
+          account: null,
+          movieList: null,
+        };
+        await AddMovieOwned(dataMovieOwned);
+        await putInforUserApi(inforUser.accountId, dataInforUser);
+        const confirmSuccses = window.confirm("Mua thanh cong");
+        if (confirmSuccses) {
+          window.location.reload();
+        }
+      }
+    } catch (error) {
+      console.error("Error updating user information:", error);
+    }
+  };
+
+  const settings = {
+    dots: true,
+    infinite: false,
+    speed: 300,
+    slidesToShow: 3,
+    slidesToScroll: 1,
+    swipeToSlide: true,
+  };
+  const settings1 = {
+    dots: true,
+    infinite: false,
+    speed: 300,
+    slidesToShow: 4,
+    slidesToScroll: 1,
+    swipeToSlide: true,
   };
   return (
-    <Fragment>
+    <div className="home">
       <Header />
       {/* Carousel */}
       <div id="carousel" className="carousel slide" data-bs-ride="carousel">
@@ -137,48 +188,68 @@ export default function Home() {
       <div className="phimhot">
         <div className="container">
           <h2 className="title mt-5">Phim Hot</h2>
-          <div className=" row d-flex my-5">
-            {listMovies.slice(0, 3).map((listMovie) => (
-              <div className="col-4 content">
-                <img
-                  className="imghot img-fluid aspect-ratio-hot"
-                  src={urlImageList + listMovie.avatarMovie}
-                />
+          <div className="row d-flex my-5">
+            <Slider {...settings}>
+              {listMovies &&
+                listMovies.map((listMovie, index) => (
+                  <div key={index} className="col-4 content ps-3">
+                    <img
+                      className="imghot img-fluid aspect-ratio-hot"
+                      src={urlImageList + listMovie.avatarMovie}
+                      alt={listMovie.movieListName}
+                    />
 
-                <div className="overlay d-flex flex-column">
-                  <p className="">Tên Phim: {listMovie.movieListName}</p>
-                  {listMovie.price != 0 && (
-                    <Fragment>
-                      <p className="price">
-                        Giá:
-                        <span className="text-decoration-underline">{`${listMovie.price.toLocaleString(
-                          "en-US"
-                        )}đ`}</span>
-                      </p>
-                      <button
-                        type="button"
-                        className="btn btn-primary"
-                        data-bs-toggle="modal"
-                        data-bs-target="#myModal"
-                        onClick={() => ListMovieModal(listMovie.movieListId)}
-                      >
-                        Mua ngay
-                      </button>
-                    </Fragment>
-                  )}
-                  {listMovie.price == 0 && (
-                    <Fragment>
-                      <p className="price">Miễn Phí.</p>
-                      <Link to={`/movie/${listMovie.movieListId}`}>
-                        <a className="btn btn-outline-secondary btn-sm">
-                          Xem phim
-                        </a>
-                      </Link>
-                    </Fragment>
-                  )}
-                </div>
-              </div>
-            ))}
+                    <div className="overlay d-flex flex-column">
+                      <p className="">Tên Phim: {listMovie.movieListName}</p>
+                      {listMovie.price !== 0 &&
+                        (user &&
+                        getMovieOwned.some(
+                          (movie) => movie.movieListId === listMovie.movieListId
+                        ) ? (
+                          <>
+                            <p>Đã mua</p>
+                            <Link to={`/informovie/${listMovie.movieListId}`}>
+                              <a className="btn btn-outline-secondary btn-sm">
+                                Xem phim
+                              </a>
+                            </Link>
+                          </>
+                        ) : (
+                          <>
+                            <p className="price">
+                              Giá:
+                              <span className="text-decoration-underline">{`${listMovie.price.toLocaleString(
+                                "en-US"
+                              )}đ`}</span>
+                            </p>
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              data-bs-toggle="modal"
+                              data-bs-target="#myModal"
+                              onClick={() =>
+                                ListMovieModal(listMovie.movieListId)
+                              }
+                            >
+                              Mua ngay
+                            </button>
+                          </>
+                        ))}
+
+                      {listMovie.price === 0 && (
+                        <Fragment>
+                          <p className="price">Miễn Phí.</p>
+                          <Link to={`/informovie/${listMovie.movieListId}`}>
+                            <a className="btn btn-outline-secondary btn-sm">
+                              Xem phim
+                            </a>
+                          </Link>
+                        </Fragment>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </Slider>
           </div>
         </div>
       </div>
@@ -186,20 +257,71 @@ export default function Home() {
       <img src={BannerQc} className="aspect-ratio-bannerQc img-fluid"></img>
 
       {/* phim kiem hiep */}
-      <div className="phimkiemhiep">
+      <div className="phimhot">
         <div className="container">
-          <h2 className="title  mt-5 ">Phim Kiếm Hiệp</h2>
+          <h2 className="title mt-5 ">Phim kiếm hiệp</h2>
           <div className="row d-flex my-5">
-            {listMovies.slice(0, 4).map((listMovie) => (
-              <div className="col ">
-                <Link to={`/movie/${listMovie.movieListId}`}>
-                  <img
-                    className=" img-fluid aspect-ratio-kiemhiep"
-                    src={urlImageList + listMovie.avatarMovie}
-                  />
-                </Link>
-              </div>
-            ))}
+            <Slider {...settings1}>
+              {listMovies &&
+                listMovies.map((listMovie, index) => (
+                  <div key={index} className="col-4 content ps-2">
+                    <img
+                      className="imghot img-fluid aspect-ratio-hot"
+                      src={urlImageList + listMovie.avatarMovie}
+                      alt={listMovie.movieListName}
+                    />
+
+                    <div className="overlay d-flex flex-column">
+                      <p className="">Tên Phim: {listMovie.movieListName}</p>
+                      {listMovie.price !== 0 &&
+                        (user &&
+                        getMovieOwned.some(
+                          (movie) => movie.movieListId === listMovie.movieListId
+                        ) ? (
+                          <>
+                            <p>Đã mua</p>
+                            <Link to={`/informovie/${listMovie.movieListId}`}>
+                              <a className="btn btn-outline-secondary btn-sm">
+                                Xem phim
+                              </a>
+                            </Link>
+                          </>
+                        ) : (
+                          <>
+                            <p className="price">
+                              Giá:
+                              <span className="text-decoration-underline">{`${listMovie.price.toLocaleString(
+                                "en-US"
+                              )}đ`}</span>
+                            </p>
+                            <button
+                              type="button"
+                              className="btn btn-primary"
+                              data-bs-toggle="modal"
+                              data-bs-target="#myModal"
+                              onClick={() =>
+                                ListMovieModal(listMovie.movieListId)
+                              }
+                            >
+                              Mua ngay
+                            </button>
+                          </>
+                        ))}
+
+                      {listMovie.price === 0 && (
+                        <Fragment>
+                          <p className="price">Miễn Phí.</p>
+                          <Link to={`/informovie/${listMovie.movieListId}`}>
+                            <a className="btn btn-outline-secondary btn-sm">
+                              Xem phim
+                            </a>
+                          </Link>
+                        </Fragment>
+                      )}
+                    </div>
+                  </div>
+                ))}
+            </Slider>
           </div>
         </div>
       </div>
@@ -241,13 +363,19 @@ export default function Home() {
                     <span>
                       Số tiền còn lại sau khi thanh toán:
                       {`${(
-                        inforUser.accountMoney - (listMovieModal.price || 0)
+                        inforUser.accountMoney - listMovieModal.price
                       ).toLocaleString("en-US")}đ`}
                     </span>
                   </p>
                   <a
                     className="btn btn-primary"
-                    onClick={() => PutInforUser(user.ID, listMovieModal.price)}
+                    onClick={() =>
+                      PutInforUser(
+                        listMovieModal.movieListId,
+                        inforUser.id,
+                        listMovieModal.price
+                      )
+                    }
                   >
                     Mua ngay
                   </a>
@@ -268,6 +396,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </Fragment>
+    </div>
   );
 }

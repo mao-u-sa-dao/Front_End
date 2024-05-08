@@ -16,21 +16,28 @@ import "./Movie.css";
 export default function Movie() {
   const url = process.env.REACT_APP_URL_API;
   const urlImageList = url + "/img/list-movies-avatar/";
-
+  // sử dụng useSearch để tạo 1 search có chứa số tập của bộ phim khi click chuyển tập
   const [PartMovieSearchParams, setPartMovieSearchParams] = useSearchParams();
+  // lấy ra số tập của bộ phim trong search đã được tạo trước đó
   const idMovie = PartMovieSearchParams.get("MovieId");
+  // sử dụng call api để lấy ra những bộ phim theo id của listmovie
   const [Movie, setMovie] = useState([]);
+  // call api để lấy thông tin movielist để hiển thị tên của bộ phim
   const [MovieListById, setMovieListById] = useState("");
+  // call api để lấy ra bộ phim theo số tập (idMovie) và theo idlistmovie đã được truyền tới khi chuyển sang trang này(id)
   const [MovieByPart, setMovieByPart] = useState("");
+  // sử dụng để lưu giá trị của người dùng khi nhập comment
   const [InputComment, setInputComment] = useState("");
+  // call api lấy danh sách comment của nhưng tập đó để hiển thị comment
   const [Comment, setComment] = useState([]);
+  // Lấy ra id của tập phim hiện tại để sử dụng thêm vào bảng comment
   const [movieId, setmovieId] = useState("");
   const [loading, setLoading] = useState(true);
   let { id } = useParams();
   useEffect(() => {
     fetchData();
   }, [idMovie]);
-
+  // nếu Movie.length lớn hơn 0 thì sẽ lưu id1 là tập phim đầu tiên
   const movieId1 = Movie.length > 0 ? Movie[0].movieId : null;
   const [buttonComment, setButtonComment] = useState(0);
   const [commentPosted, setCommentPosted] = useState(false);

@@ -5,6 +5,8 @@ import About from "./Pages/About/About";
 import Movie from "./Pages/Movie/Movie";
 import Home from "./Pages/Home/Home";
 import Login from "./Pages/Login/Login";
+import MovieUserOwned from "./Pages/MoviesUserOwned/MoviesUserOwned";
+import InforMovie from "./Pages/InforMovie/InforMovie";
 
 function App() {
   return (
@@ -39,6 +41,22 @@ function App() {
           element={
             <AnimatedPage>
               <Login />
+            </AnimatedPage>
+          }
+        />
+        <Route
+          path="/moviesuserowned"
+          element={
+            <AnimatedPage>
+              <MovieUserOwned />
+            </AnimatedPage>
+          }
+        />
+        <Route
+          path="/informovie/:id"
+          element={
+            <AnimatedPage>
+              <InforMovie />
             </AnimatedPage>
           }
         />

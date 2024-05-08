@@ -46,7 +46,7 @@ function Header() {
                 <ul className="navbar-nav ms-lg-5 gap-sm-1 gap-lg-5 me-auto mb-lg-0">
                   <li className="nav-item">
                     <a
-                      className="nav-link active text-black"
+                      className="nav-link active text-white"
                       aria-current="page"
                       href="#"
                     >
@@ -55,7 +55,7 @@ function Header() {
                   </li>
                   <li className="nav-item dropdown">
                     <a
-                      className="nav-link text-black dropdown-toggle"
+                      className="nav-link text-white dropdown-toggle"
                       href="#"
                       aria-expand="false"
                       role="button"
@@ -86,7 +86,7 @@ function Header() {
                   </li>
                   <li className="nav-item">
                     <a
-                      className="nav-link text-black"
+                      className="nav-link text-white"
                       aria-current="page"
                       href="#"
                     >
@@ -95,7 +95,7 @@ function Header() {
                   </li>
                   <li className="nav-item">
                     <a
-                      className="nav-link text-black"
+                      className="nav-link text-white"
                       aria-current="page"
                       href="#"
                     >
@@ -163,6 +163,7 @@ function Header() {
                       onClick={() => Logout()}
                       href=""
                       className="dropdown-item"
+                      data-bs-dismiss="offcanvas"
                     >
                       Logout
                     </a>
@@ -173,9 +174,17 @@ function Header() {
                     </a>
                   </li>
                   <li>
-                    <a className="dropdown-item" href="#">
-                      Kho phim sở hữu
-                    </a>
+                    <Link
+                      className="text-decoration-none"
+                      to={`/moviesuserowned`}
+                    >
+                      <button
+                        className="dropdown-item"
+                        data-bs-dismiss="offcanvas"
+                      >
+                        Kho phim sở hữu
+                      </button>
+                    </Link>
                   </li>
                 </ul>
               </div>
