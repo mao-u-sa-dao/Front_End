@@ -1,68 +1,11 @@
 import React from "react";
-import AnimatedPage from "./components/AnimatedPage/AnimatedPage";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
-import About from "./Pages/About/About";
-import Movie from "./Pages/Movie/Movie";
-import Home from "./Pages/Home/Home";
-import Login from "./Pages/Login/Login";
-import MovieUserOwned from "./Pages/MoviesUserOwned/MoviesUserOwned";
-import InforMovie from "./Pages/InforMovie/InforMovie";
+import AppRoutes from "../src/routes/AppRoutes";
+import "./App.css";
 
-function App() {
+export default function App() {
   return (
-    <Router>
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <AnimatedPage>
-              <Home />
-            </AnimatedPage>
-          }
-        />
-        <Route
-          path="/about"
-          element={
-            <AnimatedPage>
-              <About />
-            </AnimatedPage>
-          }
-        />
-        <Route
-          path="/movie/:id"
-          element={
-            <AnimatedPage>
-              <Movie />
-            </AnimatedPage>
-          }
-        />
-        <Route
-          path="/login"
-          element={
-            <AnimatedPage>
-              <Login />
-            </AnimatedPage>
-          }
-        />
-        <Route
-          path="/moviesuserowned"
-          element={
-            <AnimatedPage>
-              <MovieUserOwned />
-            </AnimatedPage>
-          }
-        />
-        <Route
-          path="/informovie/:id"
-          element={
-            <AnimatedPage>
-              <InforMovie />
-            </AnimatedPage>
-          }
-        />
-      </Routes>
-    </Router>
+    <div className="app">
+      <AppRoutes />
+    </div>
   );
 }
-
-export default App;

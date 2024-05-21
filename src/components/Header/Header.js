@@ -4,14 +4,18 @@ import { useNavigate } from "react-router-dom";
 import "./Header.css";
 import { UserInfor } from "../../api/auth";
 import { Fragment, useEffect, useState } from "react";
+
+import { getCategory } from "../../api/category";
 function Header() {
   const navigate = useNavigate();
   const [user, setUser] = useState(null);
   const [inforUser, setInforUser] = useState(null);
+  const [category, setCategory] = useState([]);
   useEffect(() => {
     fetchData();
   }, []);
   const fetchData = async () => {
+    setCategory(await getCategory());
     const token = localStorage.getItem("token");
     if (token) {
       const decodedToken = jwtDecode(token);
@@ -36,22 +40,23 @@ function Header() {
               >
                 {/* icon Menu collapse */}
                 <button
-                  class="navbar-toggler d-block"
+                  class="navbar-toggler d-block "
                   type="button"
                   data-bs-toggle="offcanvas"
                   data-bs-target="#offcanvas"
                 >
-                  <span class="navbar-toggler-icon"></span>
+                  <span class="navbar-toggler-icon "></span>
                 </button>
                 <ul className="navbar-nav ms-lg-5 gap-sm-1 gap-lg-5 me-auto mb-lg-0">
-                  <li className="nav-item">
-                    <a
-                      className="nav-link active text-white"
-                      aria-current="page"
-                      href="#"
-                    >
-                      Trang chủ
-                    </a>
+                  <li className="nav-item ">
+                    <Link className="text-decoration-none" to={"/"}>
+                      <a
+                        className="nav-link active text-white "
+                        aria-current="page"
+                      >
+                        Trang chủ
+                      </a>
+                    </Link>
                   </li>
                   <li className="nav-item dropdown">
                     <a
@@ -64,21 +69,16 @@ function Header() {
                       Kho Phim
                     </a>
                     <ul className="dropdown-menu">
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          Anime
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          Truyền Hình
-                        </a>
-                      </li>
-                      <li>
-                        <a className="dropdown-item" href="#">
-                          Kiếm Hiệp
-                        </a>
-                      </li>
+                      {category &&
+                        category.map((item, index) => (
+                          <li key={index}>
+                            <Link to={`/moviewarehouse/${item.categoryId}`}>
+                              <a className="dropdown-item">
+                                {item.categoryName}
+                              </a>
+                            </Link>
+                          </li>
+                        ))}
                       <li>
                         <hr className="dropdown-divider"></hr>
                       </li>
@@ -123,13 +123,13 @@ function Header() {
                   {user ? (
                     <button
                       onClick={() => Logout()}
-                      className="btn btn-secondary d-none d-sm-block"
+                      className="btn btn-log text-light d-none d-sm-block"
                     >
                       Logout
                     </button>
                   ) : (
                     <Link className="text-decoration-none" to={`/Login`}>
-                      <button className="btn btn-secondary d-none d-sm-block">
+                      <button className="btn btn-log btn-secondary d-none d-sm-block">
                         Login
                       </button>
                     </Link>
@@ -141,27 +141,37 @@ function Header() {
         </nav>
       </header>
       {/* item menu */}
-      <div className="offcanvas offcanvas-start" id="offcanvas">
+      <div className="offcanvas offcanvas-start " id="offcanvas">
         <div className="offcanvas-header">
-          <h1 className="offcanvas-title">Menu</h1>
+          <h2 className="offcanvas-title">Menu</h2>
           <button
             type="button"
             className="btn-close"
             data-bs-dismiss="offcanvas"
           ></button>
         </div>
+        <hr className="text-black " />
         <div className="offcanvas-body">
-          {user !== null && inforUser !== null && (
+          {user !== null && inforUser !== null ? (
             <div>
-              {user.unique_name} Tổng tiền:{" "}
-              <p>{`${inforUser.accountMoney.toLocaleString("en-US")}đ`}</p>
+              <p>
+                Xin chào: <strong>{user.unique_name}</strong>
+              </p>
+              <hr className="text-black w-50" />
+              <p>
+                Tổng tiền:{" "}
+                <strong>{`${inforUser.accountMoney.toLocaleString(
+                  "en-US"
+                )}đ`}</strong>
+              </p>
+              <hr className="text-black w-50" />
               <div className="dropdown">
                 <span className="fa fa-user dropdown-toggle"></span>
                 <ul className="dropdown-menu">
                   <li>
                     <a
                       onClick={() => Logout()}
-                      href=""
+                      href="#"
                       className="dropdown-item"
                       data-bs-dismiss="offcanvas"
                     >
@@ -189,9 +199,8 @@ function Header() {
                 </ul>
               </div>
             </div>
-          )}{" "}
-          {user === null && inforUser === null && (
-            <Fragment>
+          ) : (
+            <>
               <p>Account</p>
               <Link className="text-decoration-none" to={`/Login`}>
                 <button
@@ -201,7 +210,7 @@ function Header() {
                   Login
                 </button>
               </Link>
-            </Fragment>
+            </>
           )}
         </div>
       </div>

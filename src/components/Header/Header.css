@@ -1,5 +1,8 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap");
+
 .offcanvas {
   transition: transform 0.5s ease-in-out;
+  font-family: "Nunito", sans-serif;
 }
 .carousel-inner img {
   width: 100%;
@@ -28,5 +31,13 @@
   display: block;
 }
 .navbar-toggler .navbar-toggler-icon {
-  color: white; /* Thiết lập màu trắng cho icon */
+  background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='white' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+}
+.btn-log {
+  border: 1px solid white;
+}
+
+.btn-log:hover {
+  background-color: rgb(77, 101, 25);
+  opacity: 0.5;
 }

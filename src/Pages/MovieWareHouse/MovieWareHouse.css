@@ -1,0 +1,51 @@
+
+
+.movie-warehouse .overlay {
+  transition: opacity 0.5s ease;
+  opacity: 0;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+  z-index: 2;
+}
+
+.movie-warehouse .card {
+  position: relative;
+  overflow: hidden;
+}
+
+.movie-warehouse .card .card-img-top {
+  display: block;
+  width: 100%;
+  height: auto;
+  transition: opacity 0.5s ease;
+}
+
+.movie-warehouse .card::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0);
+  transition: background-color 0.5s ease;
+  z-index: 1;
+}
+
+.movie-warehouse .card:hover .overlay {
+  opacity: 1;
+}
+
+.movie-warehouse .card:hover::after {
+  background-color: rgba(0, 0, 0, 0.7); /* Độ mờ của lớp phủ màu đen */
+}
+
+.movie-warehouse .card:hover .card-img-top {
+  opacity: 0.3;
+}
+.movie-warehouse .overlay .price {
+  color: red;
+}
